@@ -45,9 +45,9 @@ pip install -U yt-dlp
 
 ## By utilizing this software, you agree to the following legally binding terms:
 
-- **LIMITATION OF LIABILITY**: TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, OptiFetch_2026 SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM (A) YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SERVICES; (B) ANY CONDUCT OR CONTENT OF ANY THIRD PARTY; OR (C) ANY LEGAL CONSEQUENCES ARISING FROM YOUR ACTIONS WHILE USING THE SERVICE.
+- **LIMITATION OF LIABILITY**: TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, OptiFetch SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM (A) YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SERVICES; (B) ANY CONDUCT OR CONTENT OF ANY THIRD PARTY; OR (C) ANY LEGAL CONSEQUENCES ARISING FROM YOUR ACTIONS WHILE USING THE SERVICE.
 
-- Assumption of Risk: Your use of OptiFetch_2026 is at your sole risk. The service is provided on an "AS IS" and "AS AVAILABLE" basis. OptiFetch_2026 expressly disclaims all warranties of any kind. You agree that any legal or negative consequences resulting from your use of the service are your sole responsibility, and you waive any right to bring a claim against OptiFetch_2026  for such outcomes.
+- Assumption of Risk: Your use of OptiFetch is at your sole risk. The service is provided on an "AS IS" and "AS AVAILABLE" basis. OptiFetch expressly disclaims all warranties of any kind. You agree that any legal or negative consequences resulting from your use of the service are your sole responsibility, and you waive any right to bring a claim against OptiFetch  for such outcomes.
 
 - Permitted Use: This tool is provided for PERSONAL USE ONLY. You agree NOT to use this software for any illicit activities, including the unauthorized distribution or PIRACY of copyrighted material.
 
