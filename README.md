@@ -1,4 +1,4 @@
-## Hey there! Thank you for choosing OptiFetch. 
+## Hey there! Thank you for choosing OptiFetch. 🙏🏻
 
 There are 2 ways to run the program: the easy way (through the exe file; or the hard way through the python script).
 
@@ -41,7 +41,7 @@ pip install -U yt-dlp
 
 - Admin Rights: If winget fails run PowerShell as Administrator to install system-level dependencies.
 
-# Terms and Conditions:
+# ⭕⚠️ Terms and Conditions ⭕⚠️:
 
 ## By utilizing this software, you agree to the following legally binding terms:
 
