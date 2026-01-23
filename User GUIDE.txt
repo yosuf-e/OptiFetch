@@ -1,4 +1,4 @@
-App Name: OptiFetch 2026
+App Name: OptiFetch
 Version: 2026.01.23
 Authorship: Yosuf Ahmed Elshaer
 
@@ -53,5 +53,6 @@ pip show yt-dlp
 pip install -U yt-dlp
 
 - Check Python Version: Ensure you are on a modern version (Python 3.10 or higher for compatibility)
+
 
 - Admin Rights: If winget fails run PowerShell as Administrator to install system-level dependencies.
