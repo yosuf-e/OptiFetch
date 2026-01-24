@@ -2,6 +2,15 @@
 
 There are 2 ways to run the program: the easy way (through the exe file; or the hard way through the python script).
 
+## Key Capabilities:
+
+- **Destination Control**: Seamlessly direct your media to any local or network directory of your choice. (This could be both permanent and temporary)
+
+- **Multi-Format Versatility**: Export in multiple video formats, including MP4 and MKV.
+
+- **Cinematic Resolution Scaling**: Complete control over visual fidelity, from data-saving 480p to the best/highest resolution available.
+
+
 #### METHOD #1 (EASY): Use the EXE. File
 
 - After unzipping the zip file, you will find an exe. file named "OptiFetch_2026.exe", you can just run the code from there and even move it to your desktop. However, if the app's logo becomes corrupted, you can try either restarting your PC/Laptop, or creating a shortcut for the app and then changing its logo in the properties menu (by selecting the "App_Logo.ico" file.)
@@ -54,3 +63,8 @@ pip install -U yt-dlp
 - Distribution Prohibitions: You shall not sell, lease, or sublicense this product.
 
 - Intellectual Property: MODIFICATION OF AUTHORSHIP or removal of original metadata from this program bundle is strictly PROHIBITED.
+
+### The App's UI:
+
+<img width="655" height="418" alt="image" src="https://github.com/user-attachments/assets/ee4a783a-8447-470b-ad68-e81fb4707e9c" />
+
