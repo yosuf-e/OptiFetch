@@ -66,5 +66,5 @@ pip install -U yt-dlp
 
 ### The App's UI:
 
-<img width="655" height="418" alt="image" src="https://github.com/user-attachments/assets/ee4a783a-8447-470b-ad68-e81fb4707e9c" />
+<img width="643" height="412" alt="image" src="https://github.com/user-attachments/assets/604ba367-24d9-47f0-bb0c-dd0cdff78f1e" />
 
