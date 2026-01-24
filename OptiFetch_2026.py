@@ -65,7 +65,7 @@ def display_main_menu():
     print("4. Change Settings (Permanent)")
     print("5. Reset to Default Settings")
     print("6. Exit")
-    print("Side Note: The default save path is C:\\Users\\<Username>\\Downloads.)
+    print("Side Note: The default save path is C:\\Users\\<Username>\\Downloads".)
     print("="*60)
 
 def display_settings(settings):
@@ -296,3 +296,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
