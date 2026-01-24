@@ -55,28 +55,28 @@ def get_current_settings():
 # ==================== User Interface ====================
 def display_main_menu():
     """Display main menu options"""
-    print("\n" + "="*50)
-    print("       OptiFetch 2026 - YouTube Downloader")
-    print("="*50)
+    print(" (By Utilizing This Software, You Agree To The Terms And Conditions Mentiond in The File.)")
+    print("\n" + "="*60)
+    print("          OptiFetch 2026 - YouTube Downloader")
+    print("="*60)
     print("1. Download Video")
     print("2. View Current Settings")
     print("3. Change Settings (Temporary)")
     print("4. Change Settings (Permanent)")
     print("5. Reset to Default Settings")
     print("6. Exit")
-    print("Side Note: The default save path is C:\\Users\\<Username>\\Downloads. \n (Also make sure ffmpeg & yt-dlp are installed!)")
-    print("="*50)
-    print(" (By Utilizing This Software, You Agree To The Terms And Conditions Mentiond in The File.)")
+    print("Side Note: The default save path is C:\\Users\\<Username>\\Downloads.)
+    print("="*60)
 
 def display_settings(settings):
     """Display current settings"""
-    print("\n" + "-"*50)
+    print("\n" + "-"*60)
     print("       CURRENT SETTINGS")
-    print("-"*50)
+    print("-"*60)
     print(f"Save Path:    {settings['save_path']}")
     print(f"Resolution:   {settings['resolution']}")
     print(f"Format:       {settings['format']}")
-    print("-"*50)
+    print("-"*60)
 
 def change_resolution():
     """Allow user to select resolution"""
@@ -223,8 +223,7 @@ def download_video(url):
     if not ffmpeg_path:
         print("\n❌ Error: ffmpeg is required to merge video and audio.")
         print("   Please install ffmpeg:")
-        print("   - Windows: choco install ffmpeg -y")
-        print("   - or: winget install ffmpeg")
+        print("   - winget install ffmpeg")
         print("   - or download from: https://ffmpeg.org/download.html")
         return
     
@@ -295,4 +294,5 @@ def main():
             print("Invalid choice! Please try again.")
 
 if __name__ == "__main__":
+
     main()
