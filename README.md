@@ -34,6 +34,16 @@ winget install ffmpeg
 
 ## Troubleshooting
 
+**- If Windows-Defender blocks the app**, you can resolve the issue with the following steps:
+
+1. **Add an exclusion**: You can add the specific file or, more conveniently, the entire folder containing the executable, to the Windows Defender exclusion list.
+2. Open Windows Security from the taskbar or Start menu.
+3. Go to Virus & threat protection.
+4. Under "Virus & threat protection settings," click Manage settings.
+5. Scroll down to Exclusions and click Add or remove exclusions.
+6. Click + Add an exclusion, then select File or Folder and browse to your application's location.
+
+
 - Make sure that Python is properly installed and that you have created a PATH environment.
 
 - FFmpeg Not Found: If the application reports that FFmpeg does not exist, verify the installation by typing-- ffmpeg -version or winget list -- in your terminal. If it is not listed, please repeat the installation step above.
