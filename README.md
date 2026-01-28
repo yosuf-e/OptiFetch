@@ -34,7 +34,7 @@ winget install ffmpeg
 
 ## Troubleshooting
 
-**- If Windows-Defender blocks the app**, you can resolve the issue with the following steps:
+- **If Windows-Defender blocks the app**, you can resolve the issue with the following steps:
 
 1. **Add an exclusion**: You can add the specific file or, more conveniently, the entire folder containing the executable, to the Windows Defender exclusion list.
 2. Open Windows Security from the taskbar or Start menu.
