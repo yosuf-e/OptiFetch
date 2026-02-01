@@ -55,28 +55,27 @@ def get_current_settings():
 # ==================== User Interface ====================
 def display_main_menu():
     """Display main menu options"""
-    print(" (By Utilizing This Software, You Agree To The Terms And Conditions Mentiond in The File.)")
-    print("\n" + "="*60)
-    print("          OptiFetch 2026 - YouTube Downloader")
-    print("="*60)
+    print("\n" + "="*50)
+    print("      OptiFetch 2026 - YouTube Downloader")
+    print("="*50)
     print("1. Download Video")
     print("2. View Current Settings")
     print("3. Change Settings (Temporary)")
     print("4. Change Settings (Permanent)")
     print("5. Reset to Default Settings")
     print("6. Exit")
-    print("Side Note: The default save path is C:\\Users\\<Username>\\Downloads".)
-    print("="*60)
+    print("Side Note: The default save path is C:\\Users\\<Username>\\Downloads.")
+    print("="*50)
 
 def display_settings(settings):
     """Display current settings"""
-    print("\n" + "-"*60)
-    print("       CURRENT SETTINGS")
-    print("-"*60)
+    print("\n" + "-"*50)
+    print("      CURRENT SETTINGS")
+    print("-"*50)
     print(f"Save Path:    {settings['save_path']}")
     print(f"Resolution:   {settings['resolution']}")
     print(f"Format:       {settings['format']}")
-    print("-"*60)
+    print("-"*50)
 
 def change_resolution():
     """Allow user to select resolution"""
@@ -256,7 +255,8 @@ def download_video(url):
 # ==================== Main Program ====================
 def main():
     """Main program loop"""
-    print("\n🎥 Welcome to YouTube Downloader!")
+    print(" (By Utilizing This Software, You Agree To The Terms And Conditions. \n https://github.com/yosuf-e/OptiFetch/blob/main/README.md)")
+    print("\n🎥 Welcome to OptiFetch!")
     
     while True:
         display_main_menu()
@@ -296,4 +296,3 @@ def main():
 if __name__ == "__main__":
 
     main()
-
