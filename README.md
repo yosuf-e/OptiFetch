@@ -1,7 +1,7 @@
 # Hey there! Thank you for choosing OptiFetch. 🙏🏻
 
 
-## Key Capabilities:
+## Key Capabilities ✨✨:
 
 - **Destination Control**: Seamlessly direct your media to any local or network directory of your choice. (This could be both permanent and temporary)
 
@@ -11,12 +11,12 @@
 
 There are 2 ways to run the program: the easy way (through the exe file; or the hard way through the python script).
 
-#### METHOD #1 (EASY): Use the EXE. File
+#### METHOD #1 OF INSTALLATION (EASY): Use the EXE. File
 
 - After unzipping the zip file, you will find an exe. file named "OptiFetch_2026.exe", you can just run the code from there and even move it to your desktop. However, if the app's logo becomes corrupted, you can try either restarting your PC/Laptop, or creating a shortcut for the app and then changing its logo in the properties menu (by selecting the "App_Logo.ico" file.) **Moreover, if you experince any errors in the code, you will be promted to download "ffmpeg" via winget on you Windows PC.**
 
 
-#### METHOD #2 (HARD): Use the Py. File
+#### METHOD #2 OF INSTALLATION (HARD): Use the Py. File
 
 1. Install Python
 This script primarily runs on Python; thus, you will need it for both running it and making it workable. You can install it from: 
@@ -32,7 +32,7 @@ winget install ffmpeg
 
 
 
-## Troubleshooting
+## Troubleshooting ⚙️⚙️
 
 - **If Windows-Defender blocks the app**, you can resolve the issue with the following steps:
 
