@@ -11,6 +11,8 @@
 
 There are 2 ways to run the program: the easy way (through the exe file; or the hard way through the python script).
 
+## **DOWNLOAD THE EXE FILE OVER HERE** 👉🏻👉🏻 [Download File]([https://github.com/yosuf-e/OptiFetch/releases/tag/OptiFetch](https://github.com/yosuf-e/OptiFetch/archive/refs/tags/OptiFetch.zip))
+
 #### METHOD #1 OF INSTALLATION (EASY): Use the EXE. File
 
 - After unzipping the zip file, you will find an exe. file named "OptiFetch_2026.exe", you can just run the code from there and even move it to your desktop. However, if the app's logo becomes corrupted, you can try either restarting your PC/Laptop, or creating a shortcut for the app and then changing its logo in the properties menu (by selecting the "App_Logo.ico" file.) **Moreover, if you experince any errors in the code, you will be promted to download "ffmpeg" via winget on you Windows PC.**
