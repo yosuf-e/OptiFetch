@@ -11,7 +11,7 @@
 
 There are 2 ways to run the program: the easy way (through the exe file; or the hard way through the python script).
 
-## **DOWNLOAD THE EXE FILE OVER HERE** 👉🏻👉🏻 [Download File]([https://github.com/yosuf-e/OptiFetch/releases/tag/OptiFetch](https://github.com/yosuf-e/OptiFetch/archive/refs/tags/OptiFetch.zip))
+## **DOWNLOAD THE EXE FILE OVER HERE** 👉🏻👉🏻 [![Download Button](https://img.shields.io)](https://github.com/yosuf-e/OptiFetch/archive/refs/tags/OptiFetch.zip)
 
 #### METHOD #1 OF INSTALLATION (EASY): Use the EXE. File
 
