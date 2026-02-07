@@ -11,7 +11,7 @@
 
 There are 2 ways to run the program: the easy way (through the exe file; or the hard way through the python script).
 
-## **DOWNLOAD THE ZIP FILE OVER HERE** 👉🏻👉🏻 [![Download Button](https://img.shields.io/badge/Downlaod_Button-blue)](https://github.com/yosuf-e/OptiFetch/archive/refs/tags/OptiFetch.zip)
+## **DOWNLOAD THE ZIP FILE OVER HERE** 👉🏻👉🏻 [![Download Button](https://img.shields.io/badge/Downlaod_Button-blue)](https://github.com/yosuf-e/OptiFetch/archive/refs/tags/OptiFetch__1.1.zip)
 
 #### METHOD #1 OF INSTALLATION (EASY): Use the EXE. File
 
@@ -45,6 +45,7 @@ winget install ffmpeg
 5. Scroll down to Exclusions and click Add or remove exclusions.
 6. Click + Add an exclusion, then select File or Folder and browse to your application's location.
 
+- **⭕🚨IF YOU GET ERROR 403: FORDBIDDEN**, MOST OF THE TIME YOU JUST NEED TO UPDATE YT-DLP VIA THIS COMMAND: pip install -U --pre "yt-dlp[default]"
 
 - Make sure that Python is properly installed and that you have created a PATH environment.
 
