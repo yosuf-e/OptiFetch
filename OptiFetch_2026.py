@@ -239,8 +239,6 @@ def download_video(url):
         'ffmpeg_location': ffmpeg_path,
         'noplaylist': True,
         'progress_hooks': [my_hook],
-        'cookiefile': 'cookies.txt',
-        'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'},
     }
     
     print(f"\n📥 Downloading with settings:")
@@ -298,4 +296,5 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
