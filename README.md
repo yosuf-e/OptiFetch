@@ -1,3 +1,5 @@
+<img width="1220" height="682" alt="GitHub Background" src="https://github.com/user-attachments/assets/dd67143f-8a58-426f-9044-6c18ca05ce60" />
+
 # Hey there! Thank you for choosing OptiFetch. 🙏🏻
 
 
