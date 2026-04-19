@@ -81,6 +81,5 @@ pip install -U yt-dlp
 - Intellectual Property: **MODIFICATION OF AUTHORSHIP** or removal of original metadata from this program bundle is **strictly PROHIBITED**.
 
 ### The App's UI:
-
-<img width="1009" height="524" alt="image" src="https://github.com/user-attachments/assets/e71c1ffe-f803-4713-a41d-a49e3f533e76" />
+<img width="981" height="568" alt="image" src="https://github.com/user-attachments/assets/1380e9fe-feb6-4856-aeae-525d94c46dd6" />
 
