@@ -7,7 +7,7 @@
 
 - **Destination Control**: Seamlessly direct your media to any local or network directory of your choice. (This could be both permanent and temporary)
 
-- **Multi-Format Versatility**: Export in multiple video formats, including MP4 and MKV.
+- **Multi-Format Versatility**: Export in multiple video and **AUDIO formats**, including **MP4 and MP3**.
 
 - **Cinematic Resolution Scaling**: Complete control over visual fidelity, from data-saving 480p to the best/highest resolution available.
 
