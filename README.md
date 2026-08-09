@@ -14,7 +14,7 @@
 - **Cinematic Resolution Scaling**: Complete control over visual fidelity, from data-saving 480p to the best/highest resolution available.
 # 
 > [!TIP]
-> 🛠️TROUBLESHOOTING🛠️
+> # 🛠️TROUBLESHOOTING🛠️
 > - **If Windows-Defender blocks the app**, you can resolve the issue with the following steps:
 > 
 > 1. **Add an exclusion**: You can add the specific file or, more conveniently, the entire folder containing the executable, to the Windows Defender exclusion list.
@@ -43,6 +43,5 @@
 > - Intellectual Property: **MODIFICATION OF AUTHORSHIP** or removal of original metadata from this program bundle is **strictly PROHIBITED**.
 # 
 > [!NOTE]
-> ### The App's UI:
 > <img width="490.5" height="284" alt="image" src="https://github.com/user-attachments/assets/1380e9fe-feb6-4856-aeae-525d94c46dd6" />
 
