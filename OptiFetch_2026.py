@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-OptiFetch 2026 - Updated: separate audio and video download flows.
-Drop-in replacement for your script. Keeps settings persistence and adds
-distinct "Download Video" and "Download Audio" actions.
-"""
 import yt_dlp
 import os
 import json
@@ -16,7 +10,7 @@ DEFAULT_SAVE_PATH = os.path.expanduser("~/Downloads")
 DEFAULT_CONFIG = {
     "save_path": DEFAULT_SAVE_PATH,
     "resolution": "best",
-    "format": "mp4",     # used for video downloads: mp4, mkv, webm
+    "format": "mp4",     
     "mp3_bitrate": "192" # used for audio downloads
 }
 
