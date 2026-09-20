@@ -5,7 +5,7 @@
 </p>
 
 <p align="center" >
-  <img width="610" height="341" alt="GitHub Background" src="https://github.com/user-attachments/assets/dd67143f-8a58-426f-9044-6c18ca05ce60" /></p>
+  <img width="610" height="341" alt="GitHub Background" src="https://github.com/user-attachments/assets/5a5ca1e8-ebb8-4fd1-911c-187e3f39d670" /></p>
 
 ## Key Capabilities ✨✨:
 
