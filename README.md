@@ -1,6 +1,6 @@
 <p align="center">
-<a href="https://github.com/yosuf-e/OptiFetch/releases/download/OptiFetch__1.2/OptiFetch_2026.exe">
-<img src="https://support.enphase.com/servlet/rtaImage?eid=ka0Ps000000KLzZ&feoid=00N2G00000CbxjR&refid=0EM3m000003bjeM" alt="Click to Download OptiFetch" width="200">
+<a href="https://github.com/yosuf-e/OptiFetch/releases/download/OptiFetch_1.3/OptiFetch.exe">
+<img src="https://static.vecteezy.com/system/resources/previews/009/303/129/non_2x/download-button-clipart-design-illustration-free-png.png" alt="Click to Download OptiFetch" width="200">
 </a>
 </p>
 
