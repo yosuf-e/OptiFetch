@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://github.com/yosuf-e/OptiFetch/releases/download/OptiFetch_1.3/OptiFetch.exe">
+<a href="https://github.com/yosuf-e/OptiFetch/releases/download/OptiFetch_1.3.1/OptiFetch.Download.zip">
 <img src="https://static.vecteezy.com/system/resources/previews/009/303/129/non_2x/download-button-clipart-design-illustration-free-png.png" alt="Click to Download OptiFetch" width="200">
 </a>
 </p>
@@ -38,9 +38,6 @@
 > 
 > - Permitted Use: This tool is provided for **PERSONAL USE ONLY**. You agree NOT to use this software for any illicit activities, including the unauthorized distribution or PIRACY of copyrighted material.
 > 
-> - Distribution Prohibitions: You shall not sell, lease, or sublicense this product.
-> 
-> - Intellectual Property: **MODIFICATION OF AUTHORSHIP** or removal of original metadata from this program bundle is **strictly PROHIBITED**.
 # 
 > [!NOTE]
 > <img width="490.5" height="284" alt="image" src="https://github.com/user-attachments/assets/1380e9fe-feb6-4856-aeae-525d94c46dd6" />
