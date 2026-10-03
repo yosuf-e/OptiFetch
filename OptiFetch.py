@@ -409,8 +409,8 @@ def download_audio_mp3(url):
 # -------------------- Main --------------------
 def main():
     print(" (By Using This Software, You Agree To The Terms And Conditions.)")
-    print("   https://github.com/yosuf-e/OptiFetch")
-    print("\n🎥 Welcome to OptiFetch!")
+    print("   https://github.com/yosuf-e/OptiFetch/README.md")
+    print("\n 👋🏻 Welcome to OptiFetch!")
 
     while True:
         display_main_menu()
