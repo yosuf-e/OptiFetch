@@ -4,7 +4,7 @@ import json
 import shutil
 import sys
 import subprocess
-import time
+from pathlib import Path
 
 CONFIG_FILE = "optifetch_config.json"
 DEFAULT_SAVE_PATH = os.path.expanduser("~/Downloads")
@@ -20,13 +20,39 @@ current_settings = {}
 
 # -------------------- Auto-update yt-dlp --------------------
 def update_yt_dlp():
-    print("\n🔄 Checking for yt-dlp updates...")
+    print("\n🔄 Checking for yt-dlp executable updates...")
+    
+    # 1. Try to find 'yt-dlp.exe' in the script's directory first, then in the system PATH
+    local_exe = Path(sys.argv[0]).parent / "yt-dlp.exe"
+    if local_exe.exists():
+        yt_dlp_path = str(local_exe)
+    else:
+        yt_dlp_path = shutil.which("yt-dlp") or shutil.which("yt-dlp.exe")
+    
+    # 2. If not found at all, warn the user and exit the function
+    if not yt_dlp_path:
+        print("⚠️ Error: 'yt-dlp.exe' could not be found in the script directory or system PATH.\n")
+        return
+
+    # 3. Run the standalone update command
     try:
-        subprocess.run(
-            [sys.executable, "-m", "yt_dlp", "-U"],
+        print(f"📦 Found executable at: {yt_dlp_path}")
+        result = subprocess.run(
+            [yt_dlp_path, "-U"],
+            capture_output=True,
+            text=True,
             check=False
         )
-        print("✓ yt-dlp update check complete.\n")
+        
+        # 4. Parse the output for robust feedback
+        if result.returncode == 0:
+            if "latest version" in result.stdout.lower() or "up to date" in result.stdout.lower():
+                print("✅ yt-dlp is already up to date.\n")
+            else:
+                print("✨ yt-dlp updated successfully!\n")
+        else:
+            print(f"⚠️ Update failed with exit code {result.returncode}.\nDetails: {result.stderr.strip()}\n")
+            
     except Exception as e:
         print(f"⚠️ Could not update yt-dlp: {e}\n")
 
