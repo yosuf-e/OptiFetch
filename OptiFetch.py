@@ -1,10 +1,19 @@
-import yt_dlp
-import os
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog, scrolledtext
+import threading
+import queue
 import json
+import os
 import shutil
-import sys
 import subprocess
+import sys
+import webbrowser
 from pathlib import Path
+import yt_dlp
+
+# ==========================================
+# 1. CORE ENGINE LOGIC
+# ==========================================
 
 CONFIG_FILE = "optifetch_config.json"
 DEFAULT_SAVE_PATH = os.path.expanduser("~/Downloads")
@@ -16,76 +25,84 @@ DEFAULT_CONFIG = {
     "mp3_bitrate": "192"
 }
 
-current_settings = {}
+def load_config():
+    """Loads configuration from JSON file or returns defaults"""
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r") as f:
+                data = json.load(f)
+                config = DEFAULT_CONFIG.copy()
+                config.update(data)
+                return config
+        except Exception as e:
+            print(f"⚠️ Failed to load config: {e}")
+    return DEFAULT_CONFIG.copy()
 
-# -------------------- Auto-update yt-dlp --------------------
+def save_config(settings):
+    """Saves configuration to JSON file"""
+    try:
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(settings, f, indent=4)
+    except Exception as e:
+        print(f"⚠️ Failed to save config: {e}")
+
+# --- Stream Redirector for GUI Console ---
+class StdoutRedirector:
+    def __init__(self, text_queue):
+        self.text_queue = text_queue
+
+    def write(self, string):
+        if string:
+            self.text_queue.put(string)
+
+    def flush(self):
+        pass
+
+# --- Helper Functions ---
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 def update_yt_dlp():
     print("\n🔄 Checking for yt-dlp executable updates...")
+    local_exe = Path(sys.argv[0]).parent / "yt-dlp.exe" if hasattr(sys, '_MEIPASS') else None
     
-    # 1. Try to find 'yt-dlp.exe' in the script's directory first, then in the system PATH
-    local_exe = Path(sys.argv[0]).parent / "yt-dlp.exe"
-    if local_exe.exists():
-        yt_dlp_path = str(local_exe)
-    else:
-        yt_dlp_path = shutil.which("yt-dlp") or shutil.which("yt-dlp.exe")
-    
-    # 2. If not found at all, warn the user and exit the function
-    if not yt_dlp_path:
-        print("⚠️ Error: 'yt-dlp.exe' could not be found in the script directory or system PATH.\n")
+    which_path = shutil.which("yt-dlp") or shutil.which("yt-dlp.exe")
+    if not which_path and not local_exe:
+        print("⚠️ Error: 'yt-dlp' could not be found.")
         return
 
-    # 3. Run the standalone update command
+    yt_dlp_path = str(local_exe) if local_exe and local_exe.exists() else which_path
+    
     try:
-        print(f"📦 Found executable at: {yt_dlp_path}")
         result = subprocess.run(
             [yt_dlp_path, "-U"],
-            capture_output=True,
-            text=True,
-            check=False
+            capture_output=True, text=True, check=False
         )
-        
-        # 4. Parse the output for robust feedback
         if result.returncode == 0:
-            if "latest version" in result.stdout.lower() or "up to date" in result.stdout.lower():
-                print("✅ yt-dlp is already up to date.\n")
-            else:
-                print("✨ yt-dlp updated successfully!\n")
+            print("✅ yt-dlp is already up to date.")
         else:
-            print(f"⚠️ Update failed with exit code {result.returncode}.\nDetails: {result.stderr.strip()}\n")
-            
+            print(f"⚠️ Update finished or returned code {result.returncode}.")
     except Exception as e:
-        print(f"⚠️ Could not update yt-dlp: {e}\n")
-
-# -------------------- ffmpeg detection --------------------
-def _is_executable(path):
-    return bool(path) and os.path.isfile(path) and os.access(path, os.X_OK)
-
-def _verify_ffmpeg(path):
-    try:
-        proc = subprocess.run(
-            [path, "-version"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=3
-        )
-        return proc.returncode == 0
-    except Exception:
-        return False
+        print(f"Could not update yt-dlp: {e}")
 
 def find_ffmpeg():
     candidates = []
-
-    # PATH
     which_ff = shutil.which("ffmpeg")
     if which_ff:
         candidates.append(which_ff)
 
-    # Common locations
     if sys.platform.startswith("win"):
         candidates += [
             r"C:\Program Files\ffmpeg\bin\ffmpeg.exe",
             r"C:\Program Files (x86)\ffmpeg\bin\ffmpeg.exe",
-            r"C:\ffmpeg\bin\ffmpeg.exe",
         ]
     else:
         candidates += [
@@ -94,248 +111,48 @@ def find_ffmpeg():
             "/opt/homebrew/bin/ffmpeg",
         ]
 
-    # PyInstaller bundle
     if hasattr(sys, "_MEIPASS"):
         bundle_dir = sys._MEIPASS
         candidates.append(os.path.join(bundle_dir, "ffmpeg"))
         candidates.append(os.path.join(bundle_dir, "ffmpeg.exe"))
 
-    # Deduplicate
     seen = set()
     final = []
     for c in candidates:
-        if not c:
-            continue
+        if not c: continue
         c_norm = os.path.normpath(c)
         if c_norm not in seen:
             seen.add(c_norm)
             final.append(c_norm)
 
     for cand in final:
-        if _is_executable(cand) and _verify_ffmpeg(cand):
-            print(f"✓ ffmpeg found at: {cand}")
-            return cand
-
+        try:
+            proc = subprocess.run([cand, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=3)
+            if proc.returncode == 0:
+                return cand
+        except Exception:
+            pass
+            
     print("⚠️ ffmpeg not found. Install it or add to PATH.")
     return None
 
-# -------------------- Config --------------------
-def load_config():
-    if os.path.exists(CONFIG_FILE):
-        try:
-            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-                cfg = json.load(f)
-                merged = DEFAULT_CONFIG.copy()
-                merged.update(cfg)
-                return merged
-        except Exception:
-            return DEFAULT_CONFIG.copy()
-    return DEFAULT_CONFIG.copy()
-
-def save_config(config):
-    try:
-        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(config, f, indent=4)
-        print("✓ Configuration saved!")
-    except Exception as e:
-        print(f"Error saving config: {e}")
-
-def get_current_settings():
-    cfg = load_config()
-    cfg.update(current_settings)
-    return cfg
-
-def ensure_save_path(path):
-    try:
-        os.makedirs(path, exist_ok=True)
-        return True
-    except Exception as e:
-        print(f"Error creating save path '{path}': {e}")
-        return False
-
-# -------------------- UI --------------------
-def display_main_menu():
-    print("\n" + "=" * 50)
-    print("      OptiFetch - Video Downloader")
-    print("=" * 50)
-    print("1. Download Video")
-    print("2. Download Audio (MP3)")
-    print("3. View Current Settings")
-    print("4. Change Settings (Temporary)")
-    print("5. Change Settings (Permanent)")
-    print("6. Reset to Default Settings")
-    print("7. Update yt-dlp")
-    print("8. Exit")
-    print("=" * 50)
-
-def display_settings(settings):
-    print("\n" + "-" * 50)
-    print("      CURRENT SETTINGS")
-    print("-" * 50)
-    print(f"Save Path:    {settings['save_path']}")
-    print(f"Resolution:   {settings['resolution']}")
-    print(f"Video Format: {settings['format']}")
-    print(f"MP3 Bitrate:  {settings.get('mp3_bitrate')}")
-    print("-" * 50)
-
-# -------------------- Settings menus --------------------
-def change_resolution():
-    print("\nResolution Options:")
-    resolutions = {
-        "1": ("best", "Best Quality"),
-        "2": ("1080", "1080p"),
-        "3": ("720", "720p"),
-        "4": ("480", "480p"),
-        "5": ("360", "360p"),
-    }
-    for key, (_, name) in resolutions.items():
-        print(f"  {key}. {name}")
-    choice = input("Select resolution (1-5): ").strip()
-    return resolutions.get(choice, ("best",))[0]
-
-def change_video_format():
-    print("\nVideo Format Options:")
-    formats = {
-        "1": ("mp4", "MP4"),
-        "2": ("mkv", "MKV"),
-        "3": ("webm", "WEBM"),
-    }
-    for key, (_, name) in formats.items():
-        print(f"  {key}. {name}")
-    choice = input("Select format (1-3): ").strip()
-    return formats.get(choice, ("mp4",))[0]
-
-def change_save_path():
-    settings = get_current_settings()
-    print("\nCurrent save path:", settings["save_path"])
-    path = input("Enter new save path (or press Enter to keep current): ").strip()
-    if not path:
-        return None
-    if not os.path.exists(path):
-        create = input(f"Path doesn't exist. Create it? (y/n): ").strip().lower()
-        if create == "y":
-            try:
-                os.makedirs(path, exist_ok=True)
-                return path
-            except Exception as e:
-                print(f"Error creating path: {e}")
-                return None
-        else:
-            return None
-    return path
-
-def temporary_settings_menu():
-    global current_settings
-    print("\n" + "=" * 50)
-    print("       TEMPORARY SETTINGS")
-    print("=" * 50)
-    while True:
-        settings = get_current_settings()
-        print(f"\n1. Resolution: {settings['resolution']}")
-        print(f"2. Video Format: {settings['format']}")
-        print(f"3. Save Path: {settings['save_path']}")
-        print(f"4. MP3 Bitrate: {settings.get('mp3_bitrate')}")
-        print("5. Back")
-        choice = input("\nSelect option (1-5): ").strip()
-        if choice == "1":
-            current_settings["resolution"] = change_resolution()
-        elif choice == "2":
-            current_settings["format"] = change_video_format()
-        elif choice == "3":
-            path = change_save_path()
-            if path:
-                current_settings["save_path"] = path
-        elif choice == "4":
-            br = input("Enter MP3 bitrate [192]: ").strip() or "192"
-            current_settings["mp3_bitrate"] = br
-        elif choice == "5":
-            break
-        else:
-            print("Invalid choice!")
-
-def permanent_settings_menu():
-    cfg = load_config()
-    print("\n" + "=" * 50)
-    print("       PERMANENT SETTINGS")
-    print("=" * 50)
-    while True:
-        print(f"\n1. Resolution: {cfg['resolution']}")
-        print(f"2. Video Format: {cfg['format']}")
-        print(f"3. Save Path: {cfg['save_path']}")
-        print(f"4. MP3 Bitrate: {cfg.get('mp3_bitrate')}")
-        print("5. Back")
-        choice = input("\nSelect option (1-5): ").strip()
-        if choice == "1":
-            cfg["resolution"] = change_resolution()
-            save_config(cfg)
-        elif choice == "2":
-            cfg["format"] = change_video_format()
-            save_config(cfg)
-        elif choice == "3":
-            path = change_save_path()
-            if path:
-                cfg["save_path"] = path
-                save_config(cfg)
-        elif choice == "4":
-            br = input("Enter MP3 bitrate [192]: ").strip() or "192"
-            cfg["mp3_bitrate"] = br
-            save_config(cfg)
-        elif choice == "5":
-            break
-        else:
-            print("Invalid choice!")
-
-# -------------------- Download helpers --------------------
-def build_video_format_option(resolution, format_type):
-    if resolution == "best":
-        return f"bestvideo+bestaudio/best"
-    else:
-        return f"bestvideo[height<={resolution}]+bestaudio/best"
-
-def progress_hook(d):
-    if d.get("status") == "downloading":
-        total = d.get("total_bytes") or d.get("total_bytes_estimate")
-        downloaded = d.get("downloaded_bytes", 0)
-        if total:
-            pct = downloaded / total * 100
-            sys.stdout.write(f"\rProgress: {pct:5.1f}%")
-            sys.stdout.flush()
-    elif d.get("status") == "finished":
-        print("\n✓ Finished downloading, post-processing...")
-
 def build_common_ydl_opts(ffmpeg_path, out_template, is_audio=False, settings=None):
-    """
-    403-proof yt-dlp options (Android client)
-    """
     opts = {
         "outtmpl": out_template,
         "ffmpeg_location": ffmpeg_path,
         "noplaylist": True,
         "ignoreerrors": True,
         "extract_flat": False,
-        "progress_hooks": [progress_hook],
+        "progress_hooks": [], 
         "quiet": False,
         "no_warnings": True,
-
-        # 403 bypass
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["android"]
-            }
-        },
-
-        # Force IPv4
+        "extractor_args": {"youtube": {"player_client": ["android"]}},
         "source_address": "0.0.0.0",
-
-        # Safe user-agent
         "user_agent": "Mozilla/5.0 (Linux; Android 10)",
-
-        # Throttling mitigation
-        "ratelimit": 5_000_000,
     }
 
     if is_audio:
-        bitrate = str(settings.get("mp3_bitrate", DEFAULT_CONFIG["mp3_bitrate"]))
+        bitrate = str(settings.get("mp3_bitrate", DEFAULT_CONFIG["mp3_bitrate"])) if settings else "192"
         opts["format"] = "bestaudio/best"
         opts["postprocessors"] = [{
             "key": "FFmpegExtractAudio",
@@ -343,107 +160,348 @@ def build_common_ydl_opts(ffmpeg_path, out_template, is_audio=False, settings=No
             "preferredquality": bitrate
         }]
     else:
-        opts["format"] = build_video_format_option(settings["resolution"], settings["format"])
-        opts["merge_output_format"] = settings["format"]
+        res = "best"
+        if settings and "resolution" in settings:
+            res_val = settings["resolution"]
+            if res_val != "Best Quality":
+                res = res_val.replace("p", "")
+            
+        if res == "best":
+            opts["format"] = "bestvideo+bestaudio/best"
+        else:
+            opts["format"] = f"bestvideo[height<={res}]+bestaudio/best"
+            
+        opts["merge_output_format"] = settings.get("format", "mp4") if settings else "mp4"
 
     return opts
 
-# -------------------- Download flows --------------------
-def download_video(url):
-    settings = get_current_settings()
-    if not url:
-        print("Invalid URL.")
-        return
+# ==========================================
+# 2. GUI WRAPPER
+# ==========================================
 
-    if not ensure_save_path(settings["save_path"]):
-        return
+class OptiFetchGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("OptiFetch — Internet Video Downloader")
+        # Use the function to safely load the bundled icon file
+        try:
+            icon_file = resource_path("Logo_V2.ico")
+            root.iconbitmap(icon_file)
+        except Exception as e:
+            print(f"Icon failed to load: {e}")
+        
+        # Load saved configuration or fall back to defaults
+        self.settings = load_config()
+        
+        # Thread-safe queues
+        self.progress_queue = queue.Queue()
+        self.console_queue = queue.Queue()
 
-    ffmpeg_path = find_ffmpeg()
-    if not ffmpeg_path:
-        print("\n❌ ffmpeg is required.")
-        return
+        # --- Layout Setup ---
+        main_frame = ttk.Frame(root, padding="20")
+        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        root.columnconfigure(0, weight=1)
+        root.rowconfigure(0, weight=1)
+        main_frame.columnconfigure(0, weight=1)
 
-    out_template = os.path.join(settings["save_path"], "%(title)s.%(ext)s")
-    ydl_opts = build_common_ydl_opts(ffmpeg_path, out_template, is_audio=False, settings=settings)
+        # --- Header ---
+        header_label = ttk.Label(main_frame, text="WELCOME TO OPTIFETCH", font=("Arial", 22, "bold"))
+        header_label.grid(row=0, column=0, pady=(0, 10))
 
-    print(f"\n📥 Downloading VIDEO:")
-    print(f"   Resolution: {settings['resolution']}")
-    print(f"   Format:     {settings['format']}")
-    print(f"   Save Path:  {settings['save_path']}\n")
+        # --- Terms Frame with Hyperlink ---
+        terms_frame = ttk.Frame(main_frame)
+        terms_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
+        
+        ttk.Label(
+            terms_frame, 
+            text="By utilizing this tool you agree to the ",
+            font=("Arial", 9),
+            foreground="#555"
+        ).pack(side=tk.LEFT)
+        
+        link_label = tk.Label(
+            terms_frame, 
+            text="Terms & Conditions",
+            font=("Arial", 9, "underline"),
+            foreground="#0066cc",
+            cursor="hand2"
+        )
+        link_label.pack(side=tk.LEFT)
+        link_label.bind("<Button-1>", lambda e: webbrowser.open("https://github.com/yosuf-e/OptiFetch/blob/main/README.md#%EF%B8%8F-terms-and-conditions"))
+        
+        ttk.Label(
+            terms_frame, 
+            text=" (Liability Falls on the user)",
+            font=("Arial", 9),
+            foreground="#555"
+        ).pack(side=tk.LEFT)
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-        print("✓ Video download complete.")
-    except Exception as e:
-        print(f"\n❌ Error downloading video: {e}")
+        # --- Input Area ---
+        url_frame = ttk.LabelFrame(main_frame, text="Input URL Link", padding="10")
+        url_frame.grid(row=2, column=0, pady=5, sticky=(tk.W, tk.E))
+        
+        self.url_entry = ttk.Entry(url_frame, width=60)
+        self.url_entry.pack(fill=tk.X, padx=5, pady=5)
 
-def download_audio_mp3(url):
-    settings = get_current_settings()
-    if not url:
-        print("Invalid URL.")
-        return
+        # --- Mode Selection (Video vs Audio) ---
+        mode_frame = ttk.LabelFrame(main_frame, text="Mode", padding="10")
+        mode_frame.grid(row=3, column=0, pady=5, sticky=(tk.W, tk.E))
+        
+        self.mode_var = tk.StringVar(value="video")
+        
+        self.btn_video = ttk.Radiobutton(mode_frame, text="🎬 Video", variable=self.mode_var, value="video", command=self.toggle_mode)
+        self.btn_video.pack(side=tk.LEFT, padx=5)
+        
+        self.btn_audio = ttk.Radiobutton(mode_frame, text="🎵 Audio (MP3)", variable=self.mode_var, value="audio", command=self.toggle_mode)
+        self.btn_audio.pack(side=tk.LEFT, padx=5)
 
-    if not ensure_save_path(settings["save_path"]):
-        return
+        # --- Dynamic Settings Container ---
+        self.settings_container = ttk.Frame(main_frame)
+        self.settings_container.grid(row=4, column=0, pady=5, sticky=(tk.W, tk.E))
 
-    ffmpeg_path = find_ffmpeg()
-    if not ffmpeg_path:
-        print("\n❌ ffmpeg is required.")
-        return
+        # --- Save Path Choice Area ---
+        path_frame = ttk.LabelFrame(main_frame, text="Download Directory", padding="10")
+        path_frame.grid(row=5, column=0, pady=5, sticky=(tk.W, tk.E))
+        path_frame.columnconfigure(0, weight=1)
 
-    out_template = os.path.join(settings["save_path"], "%(title)s.%(ext)s")
-    ydl_opts = build_common_ydl_opts(ffmpeg_path, out_template, is_audio=True, settings=settings)
+        self.path_var = tk.StringVar(value=self.settings["save_path"])
+        self.path_entry = ttk.Entry(path_frame, textvariable=self.path_var, width=48)
+        self.path_entry.grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.E))
 
-    print(f"\n📥 Downloading AUDIO (MP3):")
-    print(f"   Bitrate:   {settings.get('mp3_bitrate', DEFAULT_CONFIG['mp3_bitrate'])} kbps")
-    print(f"   Save Path: {settings['save_path']}\n")
+        self.btn_browse = ttk.Button(path_frame, text="Browse...", command=self.browse_directory)
+        self.btn_browse.grid(row=0, column=1, padx=5, pady=5)
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-        print("✓ Audio download complete.")
-    except Exception as e:
-        print(f"\n❌ Error downloading audio: {e}")
+        # --- Action Buttons ---
+        action_frame = ttk.LabelFrame(main_frame, text="Actions", padding="10")
+        action_frame.grid(row=6, column=0, pady=5, sticky=(tk.W, tk.E))
+        
+        self.btn_update = ttk.Button(action_frame, text="Update (yt-dlp)", command=self.update_yt_dlp)
+        self.btn_update.pack(side=tk.LEFT, padx=5)
 
-# -------------------- Main --------------------
-def main():
-    print(" (By Using This Software, You Agree To The Terms And Conditions.)")
-    print("   https://github.com/yosuf-e/OptiFetch/README.md")
-    print("\n 👋🏻 Welcome to OptiFetch!")
+        self.btn_reset = ttk.Button(action_frame, text="Reset Config", command=self.reset_config)
+        self.btn_reset.pack(side=tk.LEFT, padx=5)
 
-    while True:
-        display_main_menu()
-        choice = input("Select option (1-8): ").strip()
-        if choice == "1":
-            url = input("\nEnter video URL: ").strip()
-            download_video(url)
-        elif choice == "2":
-            url = input("\nEnter video/audio URL: ").strip()
-            download_audio_mp3(url)
-        elif choice == "3":
-            display_settings(get_current_settings())
-        elif choice == "4":
-            temporary_settings_menu()
-        elif choice == "5":
-            permanent_settings_menu()
-        elif choice == "6":
-            confirm = input("\nReset to default settings? (y/n): ").strip().lower()
-            if confirm == "y":
-                save_config(DEFAULT_CONFIG.copy())
-                current_settings.clear()
-                print("✓ Reset to defaults!")
-        elif choice == "7":
-            update_yt_dlp()
-        elif choice == "8":
-            print("\nGoodbye!")
-            break
+        self.btn_console = ttk.Button(action_frame, text="Show Console", command=self.toggle_console)
+        self.btn_console.pack(side=tk.LEFT, padx=5)
+
+        self.btn_download = ttk.Button(action_frame, text="Download ⬇️", command=self.start_download)
+        self.btn_download.pack(side=tk.RIGHT, padx=5)
+
+        # --- Status Bar & Progress ---
+        status_frame = ttk.Frame(main_frame)
+        status_frame.grid(row=7, column=0, pady=(10, 5), sticky=(tk.W, tk.E))
+        
+        self.progress_bar = ttk.Progressbar(status_frame, mode='determinate', length=300)
+        self.progress_bar.pack(fill=tk.X, expand=True, padx=5, pady=(0, 4))
+
+        self.status_label = ttk.Label(status_frame, text="Status: Ready", foreground="#444")
+        self.status_label.pack(anchor=tk.W, padx=5)
+
+        # --- Collapsible Console Frame ---
+        self.console_frame = ttk.LabelFrame(main_frame, text="Output Console Log", padding="5")
+        self.console_text = scrolledtext.ScrolledText(self.console_frame, height=8, width=70, state='disabled', bg="#1e1e1e", fg="#d4d4d4", font=("Consolas", 9))
+        self.console_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        self.console_visible = False
+
+        # --- Initialize UI Elements ---
+        self._create_settings_widgets("video")
+        
+        # Redirect standard output to console queue
+        sys.stdout = StdoutRedirector(self.console_queue)
+        sys.stderr = StdoutRedirector(self.console_queue)
+
+        # Start queue polling loop
+        self.root.after(100, self.process_queues)
+
+    def toggle_mode(self):
+        mode = self.mode_var.get()
+        self._create_settings_widgets(mode)
+
+    def browse_directory(self):
+        """Opens folder browser to choose download save path"""
+        chosen_dir = filedialog.askdirectory(initialdir=self.path_var.get())
+        if chosen_dir:
+            self.path_var.set(chosen_dir)
+            self.settings["save_path"] = chosen_dir
+            save_config(self.settings)
+
+    def toggle_console(self):
+        """Shows or hides the bottom console text box"""
+        if self.console_visible:
+            self.console_frame.grid_remove()
+            self.btn_console.config(text="Show Console")
+            self.console_visible = False
         else:
-            print("Invalid choice!")
+            self.console_frame.grid(row=8, column=0, pady=5, sticky=(tk.W, tk.E, tk.N, tk.S))
+            self.btn_console.config(text="Hide Console")
+            self.console_visible = True
+
+    def _create_settings_widgets(self, mode):
+        """Helper to dynamically create setting widgets based on mode"""
+        for widget in self.settings_container.winfo_children():
+            widget.destroy()
+
+        if mode == "video":
+            v_frame = ttk.LabelFrame(self.settings_container, text="Video Settings", padding="5")
+            v_frame.pack(fill=tk.X, expand=True)
+            
+            ttk.Label(v_frame, text="Resolution:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
+            self.res_var = tk.StringVar(value=self.settings["resolution"])
+            self.combo_resolution = ttk.Combobox(v_frame, textvariable=self.res_var, state='readonly', width=22)
+            self.combo_resolution['values'] = ["Best Quality", "1080p", "720p", "480p", "360p"]
+            self.combo_resolution.grid(row=0, column=1, padx=5, pady=5)
+
+            ttk.Label(v_frame, text="Format:").grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
+            self.fmt_var = tk.StringVar(value=self.settings["format"])
+            self.combo_format = ttk.Combobox(v_frame, textvariable=self.fmt_var, state='readonly', width=22)
+            self.combo_format['values'] = ["mp4", "mkv", "webm"]
+            self.combo_format.grid(row=1, column=1, padx=5, pady=5)
+
+        elif mode == "audio":
+            a_frame = ttk.LabelFrame(self.settings_container, text="Audio Settings", padding="5")
+            a_frame.pack(fill=tk.X, expand=True)
+            
+            ttk.Label(a_frame, text="MP3 Bitrate (kbps):").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
+            self.br_var = tk.StringVar(value=self.settings.get("mp3_bitrate", "192"))
+            self.entry_bitrate = ttk.Entry(a_frame, textvariable=self.br_var, width=25)
+            self.entry_bitrate.grid(row=0, column=1, padx=5, pady=5)
+
+    def update_yt_dlp(self):
+        threading.Thread(target=self._run_update, daemon=True).start()
+
+    def _run_update(self):
+        try:
+            update_yt_dlp()
+            self.root.after(0, lambda: self.update_status("Update Complete", 100))
+        except Exception as e:
+            self.root.after(0, lambda: self.update_status(f"Update Failed: {e}", 0))
+
+    def reset_config(self):
+        if messagebox.askyesno("Reset Config", "Are you sure you want to reset all settings?"):
+            self.settings = DEFAULT_CONFIG.copy()
+            save_config(self.settings)
+            self.path_var.set(self.settings["save_path"])
+            self.mode_var.set("video")
+            self._create_settings_widgets("video")
+            self.update_status("Settings Reset", 0)
+
+    def start_download(self):
+        url = self.url_entry.get().strip()
+        if not url:
+            messagebox.showwarning("Input Error", "Please enter a valid URL.")
+            return
+
+        mode = self.mode_var.get()
+        try:
+            self.settings["save_path"] = self.path_var.get().strip()
+            if mode == "video":
+                self.settings["resolution"] = self.combo_resolution.get()
+                self.settings["format"] = self.combo_format.get()
+            else:
+                self.settings["mp3_bitrate"] = self.entry_bitrate.get()
+            
+            # Save configuration choices
+            save_config(self.settings)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to read settings: {e}")
+            return
+
+        ffmpeg_path = find_ffmpeg()
+        if not ffmpeg_path:
+            messagebox.showwarning("Missing Dependency", "ffmpeg is required. Please install it or put it in path.")
+            return
+
+        self.update_status(f"Downloading... ({url[:25]}...)", 0)
+        
+        worker = DownloadWorker(self, ffmpeg_path, self.settings, mode == "audio", url)
+        worker.start()
+
+    def update_status(self, message, progress):
+        """Thread-safe UI status update helper"""
+        self.status_label.config(text=f"Status: {message}")
+        if progress is not None:
+            self.progress_bar.configure(value=progress)
+
+    def process_queues(self):
+        """Polls queues from background threads to safely update GUI elements & console"""
+        try:
+            while True:
+                data = self.progress_queue.get_nowait()
+                if isinstance(data, tuple):
+                    msg, val = data
+                    self.update_status(msg, val)
+                elif isinstance(data, (int, float)):
+                    self.progress_bar.configure(value=data)
+                self.progress_queue.task_done()
+        except queue.Empty:
+            pass
+
+        try:
+            while True:
+                msg = self.console_queue.get_nowait()
+                self.console_text.config(state='normal')
+                self.console_text.insert(tk.END, msg)
+                self.console_text.see(tk.END)
+                self.console_text.config(state='disabled')
+                self.console_queue.task_done()
+        except queue.Empty:
+            pass
+
+        self.root.after(100, self.process_queues)
+
+
+# ==========================================
+# 3. WORKER THREAD CLASS
+# ==========================================
+
+class DownloadWorker(threading.Thread):
+    def __init__(self, app, ffmpeg_path, settings, is_audio, url):
+        super().__init__()
+        self.app = app
+        self.ffmpeg_path = ffmpeg_path
+        self.settings = settings
+        self.is_audio = is_audio
+        self.url = url
+        self.is_cancelled = False
+        
+    def _on_progress(self, data):
+        if data['status'] == 'downloading':
+            try:
+                total = data.get("total_bytes") or data.get("total_bytes_estimate", 0)
+                downloaded = data.get("downloaded_bytes", 0)
+                if total > 0:
+                    pct = (downloaded / total) * 100
+                    self.app.progress_queue.put(pct)
+            except Exception:
+                pass
+        elif data['status'] == 'finished':
+            self.app.progress_queue.put(("Processing / Converting...", 100))
+
+    def run(self):
+        try:
+            out_template = os.path.join(self.settings["save_path"], "%(title)s.%(ext)s")
+            ydl_opts = build_common_ydl_opts(
+                ffmpeg_path=self.ffmpeg_path, 
+                out_template=out_template, 
+                is_audio=self.is_audio, 
+                settings=self.settings
+            )
+            ydl_opts["progress_hooks"] = [self._on_progress]
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([self.url])
+                
+            self.app.progress_queue.put(("Download Complete! 🎉", 100))
+        except Exception as e:
+            self.app.progress_queue.put((f"Error: {e}", 0))
+
+# ==========================================
+# 4. MAIN EXECUTION
+# ==========================================
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\nInterrupted by user.")
-        sys.exit(0)
+    root = tk.Tk()
+    app = OptiFetchGUI(root)
+    root.mainloop()
