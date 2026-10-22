@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://github.com/yosuf-e/OptiFetch/releases/download/OptiFetch_1.3.1/OptiFetch.Download.zip">
+<a href="https://github.com/yosuf-e/OptiFetch/releases/download/OptiFetch_V2/OptiFetch.zip">
 <img src="https://static.vecteezy.com/system/resources/previews/009/303/129/non_2x/download-button-clipart-design-illustration-free-png.png" alt="Click to Download OptiFetch" width="200">
 </a>
 </p>
@@ -40,5 +40,6 @@
 > 
 # 
 > [!NOTE]
-> <img width="490.5" height="284" alt="image" src="https://github.com/user-attachments/assets/92d7d022-9d46-4e8d-a828-f235d3928054" />
+> <img width="374" height="461" alt="image" src="https://github.com/user-attachments/assets/fa3d6a84-e950-40e9-8c69-b256bb5b99d5" />
+
 
